@@ -1,20 +1,39 @@
 version: 2.1
 
 jobs:
-  my_job:
+  build:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      - run: exist 1
+      - checkout
       - run:
-          name: on error
-          command: echo "Hello Error!"
+          command: npm run lint  
+  test:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          command: npm run test
+  analyze:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          command: npm audit
           when: on_fail
           
 workflows:
   my_workflow:
     jobs:
-      - my_job
+      - build
+      - test:
+          requires:
+            - build
+      - analyze:
+          requires:
+            - test
 
 # jobs:
 #   save_hello_world_output:
